@@ -49,7 +49,7 @@ df["update_date"]           = yesterday_date_string
 outputCSV = df.loc[:,["egoodsid", "etype","ref_date","q30","prediction_confidence", "confidence_interval","update_date"]]
 if not os.path.isdir("output/bigstack/lag/"): os.makedirs("output/bigstack/lag/")
 outputCSV.to_csv("output/bigstack/lag/%s.csv" % yesterday_string, index=True, header=False)
-print "\nData has been saved in output/bigstack/%s.csv" %yesterday_string
+print "\nData has been saved in output/bigstack/lag/%s.csv" %yesterday_string
 
 import re
 tmp=[]
@@ -63,7 +63,7 @@ try:
         fname = fh.read().strip()
 except:
     if os.path.exists("matadata"): 
-        continue
+        pass
     else: 
         os.mkdir("metadata"); 
     fname = None

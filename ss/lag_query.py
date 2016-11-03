@@ -35,7 +35,6 @@ def lag(lag_day=7,
     curs = conn.cursor()
     curs.execute('''
                  SELECT 
-                 TOP 5000
                  a.egoodsid,
                  a.goodsid,
                  a.currentprice, 
@@ -59,7 +58,6 @@ def lag(lag_day=7,
     curs = conn.cursor()
     curs.execute('''
                  select 
-                 Top 5000
                  a.egoodsid,
                  b.c30,
                  a.goodsid,

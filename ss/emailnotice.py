@@ -2,6 +2,7 @@ from email.Header import Header
 from email.MIMEText import MIMEText
 from email.MIMEMultipart import MIMEMultipart
 import smtplib, datetime, sys
+import os
 
 def mailtx(msg_text,
            attachments=None,

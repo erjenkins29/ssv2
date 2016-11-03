@@ -1,0 +1,6 @@
+A vaild month is an integer or string in the format 'YYYYmm'.
+The length should be 6. The first two digits should be '20'.
+The last two digits should be between '01' and '12'.
+The month cannot be earlier than '201605'.
+A bigstack month cannot not be earlier than '201606' and cannot be later than the (current month - 1).
+A submodel month cannot not be earlier than '201605' and cannot be later than the (current month - 2).

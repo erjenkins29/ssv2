@@ -31,7 +31,6 @@ def month_math(month,num):
     return new_month.strftime('%Y%m')        
 
 
-# In[7]:
 
 def getlastbutone():
     '''
@@ -47,7 +46,7 @@ def getlastbutone():
     return lastbutone
 
 
-# In[8]:
+
 
 def getlastmonth():
     '''
@@ -63,7 +62,6 @@ def getlastmonth():
     return lastmonth
 
 
-# In[9]:
 
 def getmonthlist(startmonth = '201605',endmonth='default',monthnum=None):
     '''
@@ -103,7 +101,7 @@ def getmonthlist(startmonth = '201605',endmonth='default',monthnum=None):
     return datelist
 
 
-# In[272]:
+
 def month_check(m, submodel=False):
     '''A function that checks whether a month string follows certain limitations(length, range and type etc.)
     Input parameters: 
@@ -127,6 +125,7 @@ def month_check(m, submodel=False):
         if status != 0: import sys; sys.exit("Month format Error.")
 
 
+
 def find_or_generate(max_look_back=2):
     ''' Find or generate a bigstack model.
     If it cannot find a bigstack model in the current month, this function will look back to find the most recent one.
@@ -141,7 +140,6 @@ def find_or_generate(max_look_back=2):
             if os.path.isdir('models/%s.y-BigStack/bigstacks/%s/%s.y-BigStack'%(c,m,c)) and os.path.isfile('models/%s.y-BigStack/bigstacks/%s/%s.y-BigStack/model.pkl'%(c,m,c)):
                 print "%s %s.y-BigStack found."%(m,c)
                 month = m
-            #    return m
             else:
                 print "%s %s.y-BigStack not found. Try to train it."%(m,c)
                 nlist = [j for j in os.listdir('data') if j.startswith(str(m) + '_JD_sales_plus_compass_joined')]
@@ -153,13 +151,10 @@ def find_or_generate(max_look_back=2):
                     generate_Bigstack(bigstackmonth=m,overwrite=True,modelname="%s.y-BigStack"%c); 
                     print "%s %s.y-BigStack trained."%(m ,c)
                     month = m
-            # return m
     try: return month
     except: raise Exception('No model and data in the past %s month(s).'%max_look_back)
             
             
-# In[263]:
-
 def read_training_data(training_data='default'):
     ''' A function that reads training_data and does data cleaning by using the function 'preprocess'.
     Input parameters:
@@ -177,7 +172,6 @@ def read_training_data(training_data='default'):
     return df
 
 
-# In[18]:
 
 def find_month_data(amonth):
     '''A function that looks for the training data of a given month in the data subfolder.
@@ -200,7 +194,6 @@ def find_month_data(amonth):
     return df0
 
 
-# In[259]:
 
 def model_saving(model, modelname,month ='default', submodel= True,overwrite=True,submodel_list='default'):
     '''
@@ -245,7 +238,6 @@ def model_saving(model, modelname,month ='default', submodel= True,overwrite=Tru
     return destination,imageDir
 
 
-# In[262]:
 
 def generate_single_model(modelname,month='default' , training_data= 'default', overwrite = True):
     '''
@@ -284,7 +276,6 @@ def generate_single_model(modelname,month='default' , training_data= 'default', 
  
 
 
-# In[161]:
 
 def one_month_model(month,case='default',training_data= 'default', overwrite=True):
     '''Generate a month-ensemble(small-stack). A month-ensemble is constituted by several 'single model's of that month. 
@@ -325,7 +316,6 @@ def one_month_model(month,case='default',training_data= 'default', overwrite=Tru
     if case not in ['3','4','default']: import sys; sys.exit("Case is '3' or '4' or 'default'.")            
 
 
-# In[261]:
 
 def generate_submodels(months,mode='overwrite',case='default',ensemble_components='default'):
     '''
@@ -339,7 +329,7 @@ def generate_submodels(months,mode='overwrite',case='default',ensemble_component
     Output:
     returns nothing. Generated models are saved in specific subfolders.
     '''
-    #mode:overwrite,complement
+
     if type(months)!=list: months = [months]
     month_check(months, submodel=True)
     if case=='default': case_list = ['3','4']
@@ -370,7 +360,6 @@ def generate_submodels(months,mode='overwrite',case='default',ensemble_component
     else: raise Exception("Mode should be either 'overwrite' or 'complement'.")
 
 
-# In[205]:
 
 def read_submodel_list(path):
     '''
@@ -391,7 +380,6 @@ def read_submodel_list(path):
     return submodel_list
 
 
-# In[297]:
 
 def generate_Bigstack(bigstackmonth= 'default',
                       modelname="4.y-BigStack",overwrite=False,
@@ -527,7 +515,6 @@ def generate_Bigstack(bigstackmonth= 'default',
             
 
 
-# In[224]:
 
 def bigstack_predictq30(df, modelmonth,
                responseColumn="log(q30)",
@@ -582,7 +569,6 @@ def bigstack_predictq30(df, modelmonth,
     
 
 
-# In[176]:
 
 def splitXy(training_data,responseColumn,predictorColumns="default"):
     try:
@@ -1126,7 +1112,7 @@ def predictq30(df, modelmonth,
     else:
         return yhatBar
 
-# In[42]:
+
 
 Case3_x_= [#'currentprice', 
           #'log(allcomments)', 

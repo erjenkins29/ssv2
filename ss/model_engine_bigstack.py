@@ -15,6 +15,15 @@ from preprocess import preprocess,comment_log,replace_nans_infs
 
 
 def month_math(month,num):
+    '''
+    A function that makes month-related calculation easier.
+    Parameters:
+    month: a string or an int that represents a specific month, format YYYYmm.
+    num: an int. how many months to be added. for subtraction, write a negative integer.
+    Output:
+    a string in the format of YYYYmm.
+
+    '''
     from datetime import datetime
     parsed_month= datetime.strptime(str(month),'%Y%m')
     from dateutil import relativedelta
@@ -25,6 +34,14 @@ def month_math(month,num):
 # In[7]:
 
 def getlastbutone():
+    '''
+    A month calculation function that relies on the 'month_math' function.
+    Get the month before the last month of the current date.
+    No input parameter needed.
+    Output:
+    a string in the format of YYYYmm.
+    Eg: if the function is run on 2017/05/05, the output will be '201703'. 
+    '''
     from datetime import datetime
     lastbutone = month_math(datetime.now().strftime('%Y%m'),-2)
     return lastbutone
@@ -33,6 +50,14 @@ def getlastbutone():
 # In[8]:
 
 def getlastmonth():
+     '''
+    A month calculation function that relies on the 'month_math' function.
+    Get the last month of the current date.
+    No input parameter needed.
+    Output:
+    a string in the format of YYYYmm.
+    Eg: if the function is run on 2017/05/05, the output will be '201704'. 
+    '''
     from datetime import datetime
     lastmonth = month_math(datetime.now().strftime('%Y%m'),-1)
     return lastmonth

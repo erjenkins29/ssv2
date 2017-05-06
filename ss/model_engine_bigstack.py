@@ -15,6 +15,15 @@ from preprocess import preprocess,comment_log,replace_nans_infs
 
 
 def month_math(month,num):
+    '''
+    A function that makes month-related calculation easier.
+    Input parameters:
+    month: a string or an int that represents a specific month, format YYYYmm.
+    num: an int. how many months to be added. for subtraction, write a negative integer.
+    Output:
+    a string in the format of YYYYmm.
+
+    '''
     from datetime import datetime
     parsed_month= datetime.strptime(str(month),'%Y%m')
     from dateutil import relativedelta
@@ -22,31 +31,62 @@ def month_math(month,num):
     return new_month.strftime('%Y%m')        
 
 
-# In[7]:
 
 def getlastbutone():
+    '''
+    A month calculation function that relies on the 'month_math' function.
+    Get the month before the last month of the current date.
+    No input parameter needed.
+    Output:
+    a string in the format of YYYYmm.
+    Eg: if the function is run on 2017/05/05, the output will be '201703'. 
+    '''
     from datetime import datetime
     lastbutone = month_math(datetime.now().strftime('%Y%m'),-2)
     return lastbutone
 
 
-# In[8]:
+
 
 def getlastmonth():
+    '''
+    A month calculation function that relies on the 'month_math' function.
+    Get the last month of the current date.
+    No input parameter needed.
+    Output:
+    a string in the format of YYYYmm.
+    Eg: if the function is run on 2017/05/05, the output will be '201704'. '''
+
     from datetime import datetime
     lastmonth = month_math(datetime.now().strftime('%Y%m'),-1)
     return lastmonth
 
 
-# In[9]:
 
 def getmonthlist(startmonth = '201605',endmonth='default',monthnum=None):
+    '''
+    Produce a list of strings.
+    The strings represent months of a given time range that is defined by the parameters.
+    Input parameters:
+    startmonth : a string in the format of YYYYmm. It is the beginning of the time range.
+                 if not given, the default value is '201605'.
+                 if given, the value should not be earlier than '201605'
+    endmonth:    a string in the format of YYYYmm. It is the end of the time range.
+                 if not given, the default value is the month before last month of the current date.
+                 if given, the value should not be later than the month before last month of the current date.
+    monthnum:    a positive integer. telling how many months should be added on the starting month.
+    Output: a list of strings. Each string is in the format YYYYmm
+    
+    '''
     lastbutone = getlastbutone()
     if monthnum!=None and (monthnum<0 or type(monthnum)!=int): raise Exception("Monthnum should be a positive integer or None.")
     if endmonth != 'default' and monthnum!=None: raise Exception("Can't define endmonth and monthnum at the same time.Choose one.")
+    
     if endmonth !='default' and int(endmonth)<int(startmonth): raise Exception("Endmonth should not be earlier than startmonth.")
     if startmonth !='201605' and int(startmonth)<201605: raise Exception("Startmonth can't be earlier than 201605.")
-    if endmonth == 'default': endmonth = lastbutone
+    if endmonth == 'default':
+        if monthnum!=None: endmonth = month_math(startmonth,monthnum)
+        else: endmonth = lastbutone
     if endmonth > lastbutone: raise Exception("Endmonth can't be later than %s."%lastbutone)
     
     from datetime import datetime
@@ -61,8 +101,16 @@ def getmonthlist(startmonth = '201605',endmonth='default',monthnum=None):
     return datelist
 
 
-# In[272]:
+
 def month_check(m, submodel=False):
+    '''A function that checks whether a month string follows certain limitations(length, range and type etc.)
+    Input parameters: 
+    m: the month string to be checked.
+    submodel: True/False. if True, the month string is a submodel's month. The corresponding upper limit is '201605' and the lower limit is currentmonth-2. 
+              if False, if True, the month string is a stacker's month.  The corresponding upper limit is '201606' and the lower limit is currentmonth-1.
+    Output: No value returns. Either error or pass.
+ 
+    '''
     status = 0
     if type(m)!=list: m = [m]
     if submodel == True: upper= '201605';lower = getlastbutone()
@@ -76,7 +124,14 @@ def month_check(m, submodel=False):
         if str(i)> lower: status =1; print "No month should be later than %s."%lower
         if status != 0: import sys; sys.exit("Month format Error.")
 
+
+
 def find_or_generate(max_look_back=2):
+    ''' Find or generate a bigstack model.
+    If it cannot find a bigstack model in the current month, this function will look back to find the most recent one.
+    Input parameter:
+    max_look_back: how many months at most to look back. the default value is 2.
+    '''
     from datetime import datetime
     current_month = datetime.now().strftime('%Y%m')
     look_back_list = [month_math(current_month,-i) for i in range(1,max_look_back+1)]
@@ -85,7 +140,6 @@ def find_or_generate(max_look_back=2):
             if os.path.isdir('models/%s.y-BigStack/bigstacks/%s/%s.y-BigStack'%(c,m,c)) and os.path.isfile('models/%s.y-BigStack/bigstacks/%s/%s.y-BigStack/model.pkl'%(c,m,c)):
                 print "%s %s.y-BigStack found."%(m,c)
                 month = m
-            #    return m
             else:
                 print "%s %s.y-BigStack not found. Try to train it."%(m,c)
                 nlist = [j for j in os.listdir('data') if j.startswith(str(m) + '_JD_sales_plus_compass_joined')]
@@ -97,14 +151,17 @@ def find_or_generate(max_look_back=2):
                     generate_Bigstack(bigstackmonth=m,overwrite=True,modelname="%s.y-BigStack"%c); 
                     print "%s %s.y-BigStack trained."%(m ,c)
                     month = m
-            # return m
     try: return month
     except: raise Exception('No model and data in the past %s month(s).'%max_look_back)
             
             
-# In[263]:
-
-def read_training_data(training_data):
+def read_training_data(training_data='default'):
+    ''' A function that reads training_data and does data cleaning by using the function 'preprocess'.
+    Input parameters:
+    training_data: can be a pandas dataframe or a path of csv/excel file.
+                   if no value is given, it will try to find the last month's training data in the 'data' sub-folder.
+    Output: a pandas dataframe
+    '''
     print training_data
     if isinstance(training_data,pd.core.frame.DataFrame): df = training_data
     elif training_data=='default': df = find_month_data(getlastmonth())
@@ -115,9 +172,13 @@ def read_training_data(training_data):
     return df
 
 
-# In[18]:
 
 def find_month_data(amonth):
+    '''A function that looks for the training data of a given month in the data subfolder.
+    if more than one files are found, it will use the first one (sorting by alphabet).
+    Input parameter: a string represents a month in the format YYYYmm
+    Output: a pandas dataframe
+    '''
     import os
     nlist = [j for j in os.listdir('data') if j.startswith(str(amonth) + '_JD_sales_plus_compass_joined')]
     if len(nlist) == 1:
@@ -133,9 +194,22 @@ def find_month_data(amonth):
     return df0
 
 
-# In[259]:
 
 def model_saving(model, modelname,month ='default', submodel= True,overwrite=True,submodel_list='default'):
+    '''
+    Input parameters:
+    model: the model to be saved
+    modelname: a string. the name of the model
+    month: a string. the month which the model above belongs to
+    submodel: True/False. submodels will be saved in different folders
+    overwrite: True/False.
+               if True, the previous model, if any, will be moved to 'bak' subfolder
+               if False, the previous model, if any, will not be touched. and the newly saved model will be in 'custom' subfolder
+    submodel_list: a list describing which submodels are included in an ensemble model
+    Output:
+    The model will be saved into a specific subfolder.
+    The path of the subfolder and the path of images will be returned.
+     '''
     print modelname
     if submodel==True: subfolder = 'month_ensembles'
     else: subfolder = 'bigstacks'
@@ -164,10 +238,18 @@ def model_saving(model, modelname,month ='default', submodel= True,overwrite=Tru
     return destination,imageDir
 
 
-# In[262]:
 
 def generate_single_model(modelname,month='default' , training_data= 'default', overwrite = True):
-
+    '''
+    generate a single model. A single model is a model like 'poly2 model for 201607'.
+    Input parameters:
+    modelname: only 12 names are allowed. see the codes below for the 12 names.
+    month: the month which the model belongs to
+    training_data: a pandas dataframe or a path of csv/excel file
+    overwrite: True/False. overwrite the prvious model(if any) or not
+    Output:
+    returns nothing. the models are saved in specific subfolders.
+    '''
     if modelname not in modelToSpaces.keys():raise Exception("Haven't seen this model name before. Please confirm.")
     if month!='default': month_string= month
     else: month_string = getlastmonth()
@@ -194,9 +276,17 @@ def generate_single_model(modelname,month='default' , training_data= 'default', 
  
 
 
-# In[161]:
 
 def one_month_model(month,case='default',training_data= 'default', overwrite=True):
+    '''Generate a month-ensemble(small-stack). A month-ensemble is constituted by several 'single model's of that month. 
+    Input parameters:
+    month: the month
+    case: 4 or 3 or default. default means '3 and 4'
+    training_data:a pandas dataframe or a path of csv/excel file
+    overwrite: True/False. overwrite the prvious model(if any) or not
+    Output:
+    returns nothing. the models are saved in specific subfolders.
+    '''
     if isinstance(training_data,str) and training_data== 'default': df=find_month_data(month);df = preprocess(df,training=True)
     else: df = read_training_data(training_data)
     
@@ -226,9 +316,20 @@ def one_month_model(month,case='default',training_data= 'default', overwrite=Tru
     if case not in ['3','4','default']: import sys; sys.exit("Case is '3' or '4' or 'default'.")            
 
 
-# In[261]:
 
-def generate_submodels(months,mode='overwrite',case='default',ensemble_components='default'):#mode:overwrite,complement
+def generate_submodels(months,mode='overwrite',case='default',ensemble_components='default'):
+    '''
+    Generate all the submodels needed for a bigstack model, in bulk.
+    Input parameters:
+    months: a string or a list of strings. Each string should be in the format of YYYYmm.
+    mode: either 'overwrite' or 'complement'. If overwrite, generate all the models for the given months and overwrite the existing ones.
+          If complement, only generate the models that are missing.
+    case: 3 or 4 or default. default means '3 and 4'.
+    ensemble_components: the components of the month-ensembles, by default, it is [3,5]. This parameter should be changed in the future, since it is possible that the month-ensembles are constituted by different components.
+    Output:
+    returns nothing. Generated models are saved in specific subfolders.
+    '''
+
     if type(months)!=list: months = [months]
     month_check(months, submodel=True)
     if case=='default': case_list = ['3','4']
@@ -259,9 +360,18 @@ def generate_submodels(months,mode='overwrite',case='default',ensemble_component
     else: raise Exception("Mode should be either 'overwrite' or 'complement'.")
 
 
-# In[205]:
 
 def read_submodel_list(path):
+    '''
+    Each month-ensemble(small-stack) is constituted by several models.
+    The components may vary.
+    There is a txt file in the subfolder of each month-ensemble that records the components of that month-ensemble.
+    
+    This function reads that txt file and returns the components as a list.
+    Import parameter:
+    path: the path of that txt file
+    Output: a list
+    '''
     f = open(path)
     submodels = f.readline() 
     submodel_list = submodels.split(',')
@@ -270,7 +380,6 @@ def read_submodel_list(path):
     return submodel_list
 
 
-# In[297]:
 
 def generate_Bigstack(bigstackmonth= 'default',
                       modelname="4.y-BigStack",overwrite=False,
@@ -406,7 +515,6 @@ def generate_Bigstack(bigstackmonth= 'default',
             
 
 
-# In[224]:
 
 def bigstack_predictq30(df, modelmonth,
                responseColumn="log(q30)",
@@ -461,7 +569,6 @@ def bigstack_predictq30(df, modelmonth,
     
 
 
-# In[176]:
 
 def splitXy(training_data,responseColumn,predictorColumns="default"):
     try:
@@ -1005,7 +1112,7 @@ def predictq30(df, modelmonth,
     else:
         return yhatBar
 
-# In[42]:
+
 
 Case3_x_= [#'currentprice', 
           #'log(allcomments)', 

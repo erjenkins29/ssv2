@@ -584,7 +584,7 @@ def predictq30(df,
   
     ######## Then, read all most recent 3.xx or 4.xx models (which are not the Ensemble itself)
     ######## These will be read from the models directory
-    models = sorted([model for model in os.listdir("models") if model.startswith(caseString)])
+    models = sorted([model for model in os.listdir("models") if model.startswith(caseString) and not model.startswith(caseString+".y")])
 
     mostRecentModelDate = {}
     

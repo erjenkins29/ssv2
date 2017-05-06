@@ -4,6 +4,18 @@ import pandas as pd
 
 
 def comment_log(df):
+    '''
+    This function produces log-transformed comment columns(c columns).
+    It receives a pandas dataframe as an input, looks for comment columns and returns log-transformed values as new columns of the original dataframe.
+    It also produces a 'cx' column which is the comment column that is cloest to c30.
+    For example, if there are multiple comment columns like c34, c7, c1 in a dataframe. c34 will be the 'cx', since it is closest to c30 among these.
+    
+    Input:
+    A pandas dataframe that contains comment columns, The comment columns should have been named as 'c%d', like 'c26'.
+    Output:
+    The same dataframe with log-transformed columns appended. This dataframe also contains 'cx'.
+
+    '''
     comment_columns = [str(x) for x in df.columns if str(x).startswith('c') and len(x)>1 and x[1:].isdigit() and str(x)!='c1' ]
     print comment_columns
     comment_days = [int(x[1:]) for x in comment_columns]
@@ -20,6 +32,15 @@ def replace_nans_infs(x):
     return x
 
 def preprocess(df,training = False):
+    '''
+    This function does multiple preprocess operations that are usually needed in this project.
+    It drops non-numeric columns, produces log-tranformed columns, gives case labels, calculates relative values and replace infinite/nan values.
+    Input parameters:
+    df: a pandas dataframe that to be transformed.
+    training: True/False. If True, log(q30)(the target column) will be calculated.
+    Output:
+    The dataframe that has gone through the propress steps. 
+    '''
     df.columns = [str(i) for i in df.columns]
     for i in df.columns:
         try: df[i]=pd.to_numeric(df[i])
